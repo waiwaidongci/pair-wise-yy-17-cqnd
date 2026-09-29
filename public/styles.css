@@ -309,6 +309,59 @@ main {
   border-radius: 8px;
 }
 
+.hint {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+
+.online-dot {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.online-dot.on {
+  background: rgba(38, 115, 77, .13);
+  color: var(--ok);
+}
+
+.online-dot.off {
+  background: rgba(161, 61, 61, .14);
+  color: var(--bad);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: var(--bad);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.conflict-reason {
+  margin: 8px 0 0;
+  color: var(--bad);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.outbox-item .inline-actions {
+  margin-top: 10px;
+}
+
 .toast {
   position: fixed;
   right: 20px;

@@ -81,6 +81,7 @@ module.exports = {
       defaults: { status: '正常', reviewNote: '' },
       fields: [
         { label: '样点', name: 'siteId', type: 'relation', collection: 'sites', labelFields: ['cave', 'zone', 'pointCode'], required: true, wide: true },
+        { label: '现场单号', name: 'ticketNo', placeholder: '如 XC-2026-042，离线补传按此整批上传' },
         { label: '巡测人员', name: 'surveyor', required: true },
         { label: '日期', name: 'date', type: 'date', required: true },
         { label: '温度', name: 'temperature', type: 'number', required: true },
@@ -90,6 +91,11 @@ module.exports = {
         { label: '照片链接', name: 'photoUrl' },
         { label: '游客干扰痕迹', name: 'disturbance', type: 'textarea', wide: true }
       ]
+    },
+    {
+      id: 'sync',
+      label: '离线补传',
+      type: 'sync'
     }
   ],
   actions: [

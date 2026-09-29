@@ -4,6 +4,7 @@ const path = require('path');
 
 const app = express();
 const config = require('./project.config');
+const sync = require('./lib/sync');
 const PORT = process.env.PORT || config.port || 3900;
 const DB_FILE = path.join(__dirname, 'data', 'db.json');
 
@@ -41,6 +42,26 @@ app.get('/api/db', async (req, res) => {
     if (Array.isArray(db[key])) db[key].sort(sortNewest);
   }
   res.json(db);
+});
+
+// 离线补传：服务端只负责判定与存档，页面入口在 public/app.js。
+// 必须在 /api/:collection 之前注册，否则会被当成普通集合写入。
+app.post('/api/sync', async (req, res) => {
+  const db = await readDb();
+  const result = sync.processBatch(db, req.body || {});
+  if (result.status === 'error') return res.status(400).json({ error: result.error });
+  if (result.status === 'conflict') {
+    await writeDb(db); // 冲突批次同样存档，便于核对来源
+    return res.status(409).json({ error: result.error, status: 'conflict', conflict: result.conflict, batch: result.batch });
+  }
+  await writeDb(db);
+  const code = result.status === 'applied' ? 201 : 200;
+  res.status(code).json(result);
+});
+
+app.get('/api/sync', async (req, res) => {
+  const db = await readDb();
+  res.json(db.syncBatches || []);
 });
 
 app.post('/api/:collection', async (req, res) => {
