@@ -1,31 +1,18 @@
 const express = require('express');
-const fs = require('fs/promises');
 const path = require('path');
 
 const app = express();
 const config = require('./project.config');
+const { adjudicate } = require('./server/adjudicate');
+const archive = require('./server/archive');
 const PORT = process.env.PORT || config.port || 3900;
-const DB_FILE = path.join(__dirname, 'data', 'db.json');
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-async function readDb() {
-  const raw = await fs.readFile(DB_FILE, 'utf8');
-  return JSON.parse(raw);
-}
-
-async function writeDb(db) {
-  await fs.writeFile(DB_FILE, JSON.stringify(db, null, 2) + '\n');
-}
-
-function stamp(action, note) {
-  return {
-    at: new Date().toISOString(),
-    action,
-    note: note || ''
-  };
-}
+const readDb = archive.readDb;
+const writeDb = archive.writeDb;
+const stamp = archive.stamp;
 
 function sortNewest(a, b) {
   return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
@@ -157,6 +144,53 @@ function runAction(db, action, item) {
   }
   return { item };
 }
+
+// 离线补传：按现场单号把「巡测记录 + 样点标记」两份一起提交。
+// 判定（adjudicate）→ 存档（archive）在此编排，二者互不耦合。
+app.post('/api/sync/batches', async (req, res) => {
+  const db = await readDb();
+  const decision = adjudicate(db, req.body);
+
+  if (decision.outcome === 'invalid') return res.status(decision.status).json({ error: decision.error });
+
+  if (decision.outcome === 'replayed') {
+    const first = decision.first;
+    return res.status(decision.status).json({
+      outcome: 'replayed',
+      ticketNo: first.ticketNo,
+      note: `现场单号 ${first.ticketNo} 已补传过，沿用首次结果`,
+      firstOutcome: first.outcome,
+      result: first.result || null,
+      conflict: first.conflict || null
+    });
+  }
+
+  if (decision.outcome === 'pending-review') {
+    const batch = archive.persistPendingReview(db, decision);
+    await writeDb(db);
+    return res.status(200).json({
+      outcome: 'pending-review',
+      ticketNo: batch.ticketNo,
+      batchId: batch.id,
+      note: batch.note
+    });
+  }
+
+  if (decision.outcome === 'conflict') {
+    archive.persistConflict(db, decision);
+    await writeDb(db);
+    return res.status(409).json({
+      outcome: 'conflict',
+      ticketNo: decision.payload.ticketNo,
+      error: decision.conflict.message,
+      conflict: decision.conflict
+    });
+  }
+
+  const { batch } = archive.persistApplied(db, decision);
+  await writeDb(db);
+  return res.status(201).json({ outcome: 'applied', ticketNo: batch.ticketNo, result: batch.result });
+});
 
 app.listen(PORT, () => {
   console.log(`${config.title} running at http://localhost:${PORT}`);

@@ -207,8 +207,11 @@ function render() {
   $('#title').textContent = state.config.title;
   document.title = state.config.title;
   $('#lede').textContent = state.config.lede;
-  $('#main').innerHTML = state.config.views.map((view) => view.type === 'dashboard' ? renderDashboardView(view) : renderCrudView(view)).join('');
+  $('#main').innerHTML = state.config.views
+    .map((view) => (view.type === 'dashboard' ? renderDashboardView(view) : view.type === 'sync' ? window.SyncView.renderView(view) : renderCrudView(view)))
+    .join('');
   setTab(state.activeTab || state.config.views[0].id);
+  window.SyncView?.mount();
 }
 
 async function load() {
@@ -254,5 +257,7 @@ async function boot() {
   renderTabs();
   await load();
 }
+
+window.caveApp = { state, load };
 
 boot().catch((error) => toast(error.message));

@@ -6,19 +6,29 @@ module.exports = {
     '常规观察': 'ok',
     '正常': 'ok',
     '已复查': 'ok',
+    '已受理': 'ok',
+    '补传成功': 'ok',
     '重点保护': 'warn',
     '异常待复查': 'bad',
-    '暂停开放': 'bad'
+    '暂停开放': 'bad',
+    '异文待核对': 'warn',
+    '待核对': 'warn',
+    '整批停写': 'bad',
+    '冲突停写': 'bad',
+    '补传失败': 'bad'
   },
   collections: {
     sites: { label: '样点档案' },
-    surveys: { label: '巡测记录' }
+    surveys: { label: '巡测记录' },
+    syncBatches: { label: '补传存档' }
   },
   stats: [
     { label: '样点', collection: 'sites' },
     { label: '重点保护', collection: 'sites', filter: { field: 'protectedStatus', value: '重点保护' } },
     { label: '巡测记录', collection: 'surveys' },
-    { label: '待复查', collection: 'surveys', filter: { field: 'status', value: '异常待复查' } }
+    { label: '待复查', collection: 'surveys', filter: { field: 'status', value: '异常待复查' } },
+    { label: '异文待核对', collection: 'syncBatches', filter: { field: 'outcome', value: 'pending-review' } },
+    { label: '冲突停写', collection: 'syncBatches', filter: { field: 'outcome', value: 'conflict' } }
   ],
   views: [
     {
@@ -27,6 +37,11 @@ module.exports = {
       type: 'dashboard',
       focusTitle: '异常与复查',
       focus: { collection: 'surveys', field: 'status', values: ['异常待复查'], limit: 8 }
+    },
+    {
+      id: 'sync',
+      label: '离线补传',
+      type: 'sync'
     },
     {
       id: 'sites',
@@ -93,8 +108,8 @@ module.exports = {
     }
   ],
   actions: [
-    { id: 'site-normal', label: '常规观察', collection: 'sites', patches: [{ field: 'protectedStatus', value: '常规观察' }] },
-    { id: 'site-focus', label: '重点保护', collection: 'sites', patches: [{ field: 'protectedStatus', value: '重点保护' }] },
+    { id: 'site-normal', label: '常规观察', collection: 'sites', patches: [{ field: 'protectedStatus', value: '常规观察' }, { field: 'closure', value: null }] },
+    { id: 'site-focus', label: '重点保护', collection: 'sites', patches: [{ field: 'protectedStatus', value: '重点保护' }, { field: 'closure', value: null }] },
     { id: 'site-close', label: '暂停开放', collection: 'sites', danger: true, patches: [{ field: 'protectedStatus', value: '暂停开放' }] },
     {
       id: 'survey-alert',
