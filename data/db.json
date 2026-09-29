@@ -1,0 +1,43 @@
+{
+  "sites": [
+    {
+      "id": "site-seed-1",
+      "cave": "北麓三号洞",
+      "zone": "滴水帘区",
+      "pointCode": "D-07",
+      "route": "西线巡测",
+      "sensitivity": "高",
+      "protectedStatus": "重点保护",
+      "baselineTemp": 16.2,
+      "baselineHumidity": 92,
+      "baselineCo2": 680,
+      "note": "游客步道上方，滴水频率稳定",
+      "createdAt": "2026-06-14T08:00:00.000Z",
+      "updatedAt": "2026-06-14T08:00:00.000Z",
+      "history": [
+        { "at": "2026-06-14T08:00:00.000Z", "action": "创建", "note": "样点建档" }
+      ]
+    }
+  ],
+  "surveys": [
+    {
+      "id": "survey-seed-1",
+      "siteId": "site-seed-1",
+      "surveyor": "沈宁",
+      "date": "2026-06-18",
+      "temperature": 17.4,
+      "humidity": 88,
+      "co2": 920,
+      "dripRate": 12,
+      "disturbance": "栏杆外侧有触碰痕迹",
+      "photoUrl": "",
+      "status": "异常待复查",
+      "reviewNote": "",
+      "createdAt": "2026-06-18T10:00:00.000Z",
+      "updatedAt": "2026-06-18T10:00:00.000Z",
+      "history": [
+        { "at": "2026-06-18T10:00:00.000Z", "action": "创建", "note": "CO2升高并有干扰痕迹" }
+      ]
+    }
+  ]
+}

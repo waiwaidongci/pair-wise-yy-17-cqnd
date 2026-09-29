@@ -1,0 +1,27 @@
+node_modules/
+.DS_Store
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs and caches
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+coverage/
+
+# Editor settings
+.idea/
+.vscode/
